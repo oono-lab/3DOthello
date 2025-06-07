@@ -1,55 +1,51 @@
-3D Othello Cube - Interactive Multiplayer Game
-A 3D interactive version of Othello (Reversi) on a cubic board, created by a two-person team as part of a university course project for Interactive Systems.
-Development period: 1.5 months
+# 3D Othello Cube - オセロ立方体バトル
 
-🧩 Features
-🔷 Board Customization
-The board consists of 4 cube faces:
+大学の講義「インタラクティブシステム」の課題として、2人チームで開発した3D型オセロ対戦ゲームです。 
+モード選択画面のUIデザイン以外を担当しました。
+また、盤面を立方体にすることで新しい戦略性を取り入れ、オンライン対戦やカスタマイズ性も実現しました。
 
-Black Tile, White Tile, Placeable Tile, and Non-Placeable Tile
+![screenshot or gif here if available]
 
-Playable in diagonal flipping directions
+---
 
-Board sizes: Choose from 4x4x4, 6x6x6, or 8x8x8
+## 開発情報
 
-Full 3D rotation: Freely rotate the board 360 degrees
+- **開発期間**: 約1か月半  
+- **開発人数**: 2人  
+- **開発環境**: Unity + Photon  
+- **対象講義**: インタラクティブシステム（大学）
 
-Zoom functionality for better visibility
+---
 
-Consistent input handling regardless of camera angle
+## 🎮 主な機能
 
-Operable with arrow keys
+### ゲーム機能
+- **立方体型の3Dオセロ盤面**
+- **盤面カスタマイズ**（以下4つの状態で構成）
+  - 黒マスの状態
+  - 白マスの状態
+  - 石を置けるマス
+  - 何も置けないマス
+- **斜め方向のひっくり返し対応**
+- **サイズ変更可能（デフォルトサイズ：4×4×4 / 6×6×6 / 8×8×8）**
 
-🌐 Online Multiplayer (via Photon)
-Real-time online matches supported using Photon
+### UI・操作
+- **360度自由な視点回転**
+- **ズーム機能**
+- **矢印キーでの簡単操作**
+- **盤面角度にかかわらず操作性を一定に保つ工夫**
 
-Smooth multiplayer experience with responsive synchronization
+### オンライン対戦
+- **Photonを用いた2人対戦対応**
 
-⚙️ Settings Menu
-Adjust object transparency
+### ⚙設定画面
+- **盤面・オブジェクトの透明度設定**
+- **BGM / サウンド調整機能**
 
-Control BGM and sound effects independently
+---
 
-Enable or disable customization options
+## スクリーンショット
+  ![image](https://github.com/user-attachments/assets/970aef16-b5d4-471a-80be-5fb74fecddd5)
+---
 
-🛠️ Technologies Used
-Unity
 
-Photon Unity Networking (PUN)
-
-C#
-
-📸 Screenshots (optional)
-You can insert images or GIFs demonstrating:
-
-Cube rotation
-
-Multiplayer gameplay
-
-Settings screen
-
-👨‍💻 Authors
-Developed by a two-person student team at [Your University Name]
-
-📚 License
-MIT License (or your choice)
