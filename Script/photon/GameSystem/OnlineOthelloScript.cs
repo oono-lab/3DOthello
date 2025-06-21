@@ -16,6 +16,7 @@ using System.Collections;
 
 public class OnlineOthelloScript : MonoBehaviourPun
 {
+    #region UI ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®å‚ç…§
     public GameObject OthelloSprite;
     public GameObject Cube;
     public GameObject CubeCliant;
@@ -29,40 +30,61 @@ public class OnlineOthelloScript : MonoBehaviourPun
     public GameObject[] UpDownButton;
     public UnityEngine.UI.Image BlackImage;
     public UnityEngine.UI.Image WhiteImage;
+    public UnityEngine.UI.Button button;
+    #endregion
+
+    #region ã‚ªãƒ¼ãƒ‡ã‚£ã‚ªé–¢é€£
     public AudioSource StonePutAudio;
     public AudioSource NotPutAudio;
     public AudioSource CustumPutAudio;
     public AudioSource GameOverAudio;
     public AudioSource CubeMoveAudio;
-    public UnityEngine.UI.Button button;
+    #endregion
+
+    #region ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŠã‚ˆã³å†…éƒ¨çŠ¶æ…‹
     private GameObject CubeCopy;
     private GameObject CubeCopyCliant;
     private Vector3 originalPosition;
     public int CustumSelectBotton = 0;
     public OthelloScript OthelloScript;
-    private int FIELD_SIZE_MAX= OthelloScript.FIELD_SIZE - 1;
+    private ObjectRotation ObjectRotationBool;
+    [SerializeField] private GameObject ObjectRotationSystem;
+    #endregion
+
+    #region å®šæ•°ãƒ»åˆæœŸå€¤
+    private int FIELD_SIZE_MAX = OthelloScript.FIELD_SIZE - 1;
     private int DIRECTION_MAXHard = 26;
     private int DIRECTION_MAXNotHard = 6;
     private int MEDIAN_UP = OthelloScript.FIELD_SIZE / 2;
     private int MEDIAN_DOWN = OthelloScript.FIELD_SIZE / 2 - 1;
+    private float moveDelay = 0.15f;
+    private float lastMoveTime = 0.0f;
+    #endregion
+
+    #region ã‚­ãƒ¥ãƒ¼ãƒ–ä½ç½®ç®¡ç†
     private int Cube_Position_X;
     private int Cube_Position_Y;
     private int Cube_Position_Z;
     private int Cube_Position_X_Cliant;
     private int Cube_Position_Y_Cliant;
     private int Cube_Position_Z_Cliant;
-    private float moveDelay = 0.15f;
-    private float lastMoveTime = 0.0f;
+    #endregion
+
+    #region ã‚²ãƒ¼ãƒ çŠ¶æ…‹ãƒ»ãƒ•ãƒ©ã‚°ç®¡ç†
     private bool ResultHantei = false;
     private bool BlackCheckFlag = false;
     private bool WhiteCheckFlag = true;
     private bool isChoicPoint = false;
-    [SerializeField] private GameObject ObjectRotationSystem;
-    private ObjectRotation ObjectRotationBool;
+    #endregion
+
+    #region ç§»å‹•åˆ¶å¾¡ãƒ»æ“ä½œæƒ…å ±
     private int[] RightLeftUpDownMaster = new int[] { 0, 0, 0, 0 };
     private int[] RightLeftUpDownCliant = new int[] { 0, 0, 0, 0 };
     private List<(int, int, int)> _infoListNotHard = new List<(int, int, int)>();
     private List<(int, int, int)> _infoListHard = new List<(int, int, int)>();
+    #endregion
+
+    #region åˆ—æŒ™å‹ã¨çŠ¶æ…‹ç®¡ç†
     public enum SpriteState
     {
         None,
@@ -71,19 +93,24 @@ public class OnlineOthelloScript : MonoBehaviourPun
         Wall,
         NoneChoice
     }
+
     public SpriteState[] spriteStates = new SpriteState[4]
     {
-    SpriteState.Black,
-    SpriteState.White,
-    SpriteState.None,
-    SpriteState.Wall,
+        SpriteState.Black,
+        SpriteState.White,
+        SpriteState.None,
+        SpriteState.Wall,
     };
+
     private SpriteState PlayerTurn = SpriteState.Black;
     private static SpriteState[,,] FieldState = new SpriteState[OthelloScript.FIELD_SIZE, OthelloScript.FIELD_SIZE, OthelloScript.FIELD_SIZE];
     private static SpriteState[,,] FieldStateCustum = new SpriteState[OthelloScript.FIELD_SIZE, OthelloScript.FIELD_SIZE, OthelloScript.FIELD_SIZE];
     private SpriteState[,,] FieldStateStart = new SpriteState[OthelloScript.FIELD_SIZE, OthelloScript.FIELD_SIZE, OthelloScript.FIELD_SIZE];
     private SpriteState[,,] FieldStateNone = new SpriteState[OthelloScript.FIELD_SIZE, OthelloScript.FIELD_SIZE, OthelloScript.FIELD_SIZE];
     private OnlineSpriteScript[,,] FieldSpriteState = new OnlineSpriteScript[OthelloScript.FIELD_SIZE, OthelloScript.FIELD_SIZE, OthelloScript.FIELD_SIZE];
+    #endregion
+
+    #region çŠ¶æ…‹ã®ã‚·ãƒªã‚¢ãƒ©ã‚¤ã‚ºãƒ»ãƒ‡ã‚·ãƒªã‚¢ãƒ©ã‚¤ã‚º
     SpriteState[] SerializeFieldState(SpriteState[,,] fieldState)
     {
         SpriteState[] serializedData = new SpriteState[OthelloScript.FIELD_SIZE * OthelloScript.FIELD_SIZE * OthelloScript.FIELD_SIZE];
@@ -93,15 +120,12 @@ public class OnlineOthelloScript : MonoBehaviourPun
             {
                 for (int z = 0; z < OthelloScript.FIELD_SIZE; z++)
                 {
-                    serializedData[x * (OthelloScript.FIELD_SIZE * OthelloScript.FIELD_SIZE) + y * OthelloScript.FIELD_SIZE + z] = fieldState[x, y,z]; 
+                    serializedData[x * (OthelloScript.FIELD_SIZE * OthelloScript.FIELD_SIZE) + y * OthelloScript.FIELD_SIZE + z] = fieldState[x, y, z];
                 }
-                
             }
         }
         return serializedData;
     }
-
-
 
     SpriteState[,,] DeserializeFieldState(SpriteState[] serializedData)
     {
@@ -112,22 +136,19 @@ public class OnlineOthelloScript : MonoBehaviourPun
             {
                 for (int z = 0; z < OthelloScript.FIELD_SIZE; z++)
                 {
-                    fieldState[x, y,z] = serializedData[x * (OthelloScript.FIELD_SIZE * OthelloScript.FIELD_SIZE) + y * OthelloScript.FIELD_SIZE + z];
+                    fieldState[x, y, z] = serializedData[x * (OthelloScript.FIELD_SIZE * OthelloScript.FIELD_SIZE) + y * OthelloScript.FIELD_SIZE + z];
                 }
-                
             }
         }
         return fieldState;
     }
+    #endregion
 
+    #region Startãƒ¡ã‚½ãƒƒãƒ‰ï¼ˆåˆæœŸåŒ–å‡¦ç†ï¼‰
     void Start()
     {
-        
         originalPosition = Cube.transform.position;
         settingsPanel.SetActive(false);
-        //FIELD_SIZE_MAX = OthelloScript.FIELD_SIZE - 1;
-        //MEDIAN_UP = OthelloScript.FIELD_SIZE / 2;
-        //MEDIAN_DOWN = OthelloScript.FIELD_SIZE / 2 - 1;
         Cube_Position_X = FIELD_SIZE_MAX;
         Cube_Position_Y = FIELD_SIZE_MAX;
         Cube_Position_Z = FIELD_SIZE_MAX;
@@ -135,9 +156,8 @@ public class OnlineOthelloScript : MonoBehaviourPun
         Cube_Position_Y_Cliant = FIELD_SIZE_MAX;
         Cube_Position_Z_Cliant = FIELD_SIZE_MAX;
         ObjectRotationBool = ObjectRotationSystem.GetComponent<ObjectRotation>();
-        Debug.Log($"Sizes: {FieldState.GetLength(0)}, {FieldState.GetLength(1)}, {FieldState.GetLength(2)}");
-        Debug.Log($"Indexes: {MEDIAN_DOWN}, {MEDIAN_UP}, {MEDIAN_DOWN}");
-        Debug.Log($"OthelloScript.FIELD_SIZE: {OthelloScript.FIELD_SIZE}");
+
+        // åˆæœŸé…ç½®ï¼ˆã‚«ã‚¹ã‚¿ãƒ  or é€šå¸¸ï¼‰
         FieldStateStart[MEDIAN_DOWN, MEDIAN_UP, MEDIAN_DOWN] = SpriteState.Black;
         FieldStateStart[MEDIAN_DOWN, MEDIAN_DOWN, MEDIAN_DOWN] = SpriteState.White;
         FieldStateStart[MEDIAN_UP, MEDIAN_DOWN, MEDIAN_UP] = SpriteState.White;
@@ -147,6 +167,7 @@ public class OnlineOthelloScript : MonoBehaviourPun
         FieldStateStart[MEDIAN_UP, MEDIAN_DOWN, MEDIAN_DOWN] = SpriteState.Black;
         FieldStateStart[MEDIAN_UP, MEDIAN_UP, MEDIAN_DOWN] = SpriteState.White;
 
+        // ç›¤é¢ç”Ÿæˆ
         for (int x = 0; x < OthelloScript.FIELD_SIZE; x++)
         {
             for (int y = 0; y < OthelloScript.FIELD_SIZE; y++)
@@ -154,43 +175,46 @@ public class OnlineOthelloScript : MonoBehaviourPun
                 for (int z = 0; z < OthelloScript.FIELD_SIZE; z++)
                 {
                     Vector3 localPosition = new Vector3(
-                            2.0f * (x - OthelloScript.positional_complement),
-                            2.0f * (y - OthelloScript.positional_complement),
-                            2.0f * (z - OthelloScript.positional_complement)
-                        );
+                        2.0f * (x - OthelloScript.positional_complement),
+                        2.0f * (y - OthelloScript.positional_complement),
+                        2.0f * (z - OthelloScript.positional_complement)
+                    );
+
                     Cube.transform.position = localPosition;
                     var sprite = Instantiate(OthelloSprite, localPosition, Quaternion.Euler(0, 0, 0));
                     sprite.transform.SetParent(Board_surface.transform, true);
 
-
                     FieldStateNone[x, y, z] = SpriteState.None;
-                    if (!(x == MEDIAN_UP || x == MEDIAN_DOWN) && !(y == MEDIAN_UP || y == MEDIAN_DOWN) && !(z == MEDIAN_UP || z == MEDIAN_DOWN)) FieldState[x, y, z] = SpriteState.None;
+
+                    if (!(x == MEDIAN_UP || x == MEDIAN_DOWN) && !(y == MEDIAN_UP || y == MEDIAN_DOWN) && !(z == MEDIAN_UP || z == MEDIAN_DOWN))
+                        FieldState[x, y, z] = SpriteState.None;
 
                     FieldSpriteState[x, y, z] = sprite.GetComponent<OnlineSpriteScript>();
+
                     if (OthelloScript.isCustum || !PhotonNetwork.InRoom)
                     {
-                        FieldState[x, y,z] = FieldStateStart[x, y,z];
-                        FieldStateCustum[x, y,z] = FieldState[x, y,z];
-
+                        FieldState[x, y, z] = FieldStateStart[x, y, z];
+                        FieldStateCustum[x, y, z] = FieldState[x, y, z];
                     }
-                    else FieldState[x, y,z] = FieldStateCustum[x, y,z];
+                    else
+                    {
+                        FieldState[x, y, z] = FieldStateCustum[x, y, z];
+                    }
+
                     FieldSpriteState[x, y, z].SetState(FieldState[x, y, z]);
-                    
                 }
-
             }
-
-
         }
+
+        // ã‚­ãƒ¥ãƒ¼ãƒ–ã®åˆæœŸåŒ–ï¼ˆãƒ­ãƒ¼ã‚«ãƒ« or ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ï¼‰
         if (OthelloScript.isCustum)
         {
             CubeCopy = Instantiate(Cube, originalPosition, Quaternion.identity);
             CubeCopy.transform.SetParent(Board_surface.transform, true);
             CubeCopy.SetActive(true);
             CubeCopy.transform.position = Cube.transform.position;
-            
-
-        }else if (!PhotonNetwork.InRoom)
+        }
+        else if (!PhotonNetwork.InRoom)
         {
             CubeCopy = Instantiate(Cube, originalPosition, Quaternion.identity);
             CubeCopy.transform.SetParent(Board_surface.transform, true);
@@ -199,22 +223,19 @@ public class OnlineOthelloScript : MonoBehaviourPun
             button.onClick.Invoke();
         }
         else
-        {   
-
+        {
             CubeCopy = Instantiate(Cube, originalPosition, Quaternion.identity);
             CubeCopy.transform.SetParent(Board_surface.transform, true);
             CubeCopy.SetActive(true);
             CubeCopy.transform.position = Cube.transform.position;
 
-            CubeCopyCliant =Instantiate(CubeCliant, originalPosition, Quaternion.identity);
+            CubeCopyCliant = Instantiate(CubeCliant, originalPosition, Quaternion.identity);
             CubeCopyCliant.transform.SetParent(Board_surface.transform, true);
             CubeCopyCliant.SetActive(true);
             CubeCopyCliant.transform.position = Cube.transform.position;
-
         }
-        
-
     }
+    #endregion
     void Update()
     {
 
@@ -230,12 +251,10 @@ public class OnlineOthelloScript : MonoBehaviourPun
                 if (PhotonNetwork.IsMasterClient)
                 {
                     InputControll(RightLeftUpDownMaster, Cube_Position_X, Cube_Position_Y, Cube_Position_Z, true);
-                    //CubeCopy.transform.position = Cube.transform.position;
                 }
                 else if (!PhotonNetwork.IsMasterClient)
                 {
                     InputControll(RightLeftUpDownCliant, Cube_Position_X_Cliant, Cube_Position_Y_Cliant, Cube_Position_Z_Cliant, false);
-                   //CubeCopyCliant.transform.position = CubeCliant.transform.position;
                 }
             }
         }
@@ -305,7 +324,7 @@ public class OnlineOthelloScript : MonoBehaviourPun
             {
                 if (TurnCheckHard(i, Cube_Position_X_This, Cube_Position_Y_This, Cube_Position_Z_This)) turnCheck = true;
             }
-            #region@ƒvƒŒƒCƒ„[‚ª’u‚¯‚éÎ‚Æ‚µ‚Ä•\¦‚·‚éƒ}ƒX‚ğ‰Šú‰»
+            #regionã€€ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒç½®ã‘ã‚‹çŸ³ã¨ã—ã¦è¡¨ç¤ºã™ã‚‹ãƒã‚¹ã‚’åˆæœŸåŒ–
             for (int x = 0; x < OthelloScript.FIELD_SIZE; x++)
             {
                 for (int y = 0; y < OthelloScript.FIELD_SIZE; y++)
@@ -401,7 +420,7 @@ public class OnlineOthelloScript : MonoBehaviourPun
                 if (TurnCheckNotHard(i, Cube_Position_X_This, Cube_Position_Y_This, Cube_Position_Z_This)) turnCheck = true;
             }
             Debug.Log(turnCheck);
-            #region@ƒvƒŒƒCƒ„[‚ª’u‚¯‚éÎ‚Æ‚µ‚Ä•\¦‚·‚éƒ}ƒX‚ğ‰Šú‰»
+            #regionã€€ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒç½®ã‘ã‚‹çŸ³ã¨ã—ã¦è¡¨ç¤ºã™ã‚‹ãƒã‚¹ã‚’åˆæœŸåŒ–
             for (int x = 0; x < OthelloScript.FIELD_SIZE; x++)
             {
                 for (int y = 0; y < OthelloScript.FIELD_SIZE; y++)
@@ -486,7 +505,7 @@ public class OnlineOthelloScript : MonoBehaviourPun
         UpdateBoard();
 
     }
-    #region@ƒJƒXƒ^ƒ€ƒ‚[ƒh‚Ìˆ—•”•ª
+    #regionã€€ã‚«ã‚¹ã‚¿ãƒ ãƒ¢ãƒ¼ãƒ‰ã®å‡¦ç†éƒ¨åˆ†
     private void CustumMode()
     {
       
@@ -527,7 +546,7 @@ public class OnlineOthelloScript : MonoBehaviourPun
         
 
 
-        #region@•‚Æ”’‚Ç‚¿‚ç‚Ìƒ^[ƒ“‚È‚Ì‚©‚ğ•\¦BŒ»İ‚Ì•Î‚Æ”’Î‚Ì”‚ğ•\¦B
+        #regionã€€é»’ã¨ç™½ã©ã¡ã‚‰ã®ã‚¿ãƒ¼ãƒ³ãªã®ã‹ã‚’è¡¨ç¤ºã€‚ç¾åœ¨ã®é»’çŸ³ã¨ç™½çŸ³ã®æ•°ã‚’è¡¨ç¤ºã€‚
         if (PlayerTurn == SpriteState.White)
         {
             BlackImage.enabled = false;
@@ -545,7 +564,7 @@ public class OnlineOthelloScript : MonoBehaviourPun
         #endregion
         if (WhiteNum + BlackNum == OthelloScript.FIELD_SIZE * OthelloScript.FIELD_SIZE * OthelloScript.FIELD_SIZE || !WhiteCheckFlag && !BlackCheckFlag) GameOver(WhiteNum, BlackNum);
     }
-    #region ‘ÎíI—¹‚ÌUI•\¦
+    #region å¯¾æˆ¦çµ‚äº†æ™‚ã®UIè¡¨ç¤º
     private void GameOver(int WhiteNum, int BlackNum)
     {
         GameObject Black = WinTextObj.transform.Find("Black").gameObject;
@@ -583,7 +602,7 @@ public class OnlineOthelloScript : MonoBehaviourPun
     }
     #endregion
 
-    #region Î‚ß•ûŒü‚È‚µ‚ÌŠÖ”B
+    #region æ–œã‚æ–¹å‘ãªã—ã®é–¢æ•°ã€‚
     private bool TurnCheckNotHard(int Direction, int field_size_x, int field_size_y, int field_size_z)
     {
         var turnCheck = false;
@@ -650,7 +669,7 @@ public class OnlineOthelloScript : MonoBehaviourPun
         return turnCheck;
     }
     #endregion
-    #region Î‚ß•ûŒü‚ ‚è‚ÌŠÖ”B
+    #region æ–œã‚æ–¹å‘ã‚ã‚Šã®é–¢æ•°ã€‚
     private bool TurnCheckHard(int Direction, int field_size_x, int field_size_y, int field_size_z)
     {
         var turnCheck = false;
@@ -850,7 +869,7 @@ public class OnlineOthelloScript : MonoBehaviourPun
         return turnCheck;
     }
     #endregion
-    #region ‘Îíƒ‚[ƒh‚Å‚Ì”Õ–Ê‚Ìó‘Ô‚ğƒJƒXƒ^ƒ€”Õ–Ê‚Ìó‘Ô‚ÉƒŠƒZƒbƒg
+    #region å¯¾æˆ¦ãƒ¢ãƒ¼ãƒ‰ã§ã®ç›¤é¢ã®çŠ¶æ…‹ã‚’ã‚«ã‚¹ã‚¿ãƒ ç›¤é¢ã®çŠ¶æ…‹ã«ãƒªã‚»ãƒƒãƒˆ
     public void ResetBoardGame()
     {
         ResultHantei = false;
@@ -859,14 +878,14 @@ public class OnlineOthelloScript : MonoBehaviourPun
     }
     #endregion
 
-    #region ƒJƒXƒ^ƒ€ƒ‚[ƒh‚Å‚Ì”Õ–Ê‚Ìó‘Ô‚ğ‰Šúó‘Ô‚ÉƒŠƒZƒbƒg
+    #region ã‚«ã‚¹ã‚¿ãƒ ãƒ¢ãƒ¼ãƒ‰ã§ã®ç›¤é¢ã®çŠ¶æ…‹ã‚’åˆæœŸçŠ¶æ…‹ã«ãƒªã‚»ãƒƒãƒˆ
     public void ResetBoardCustum()
     {
         ResetBoardProcess(FieldState, FieldStateStart);
     }
     #endregion
 
-    #region ‚P‚Â‚Ì”Õ–Ê‚Ìƒf[ƒ^î•ñ‚ğ‘S‚Ä‚à‚¤ˆê‚Â‚Ì”Õ–Ê‚Ìƒf[ƒ^î•ñ‚É‘ã“üB‚Ü‚½ACube‚Ì‰ŠúˆÊ’u‹y‚ÑƒvƒŒƒCƒ„[ƒ^[ƒ“‚Ìî•ñ‚ğ•‚Ìƒ^[ƒ“‚É•Ï‚¦‚éB
+    #region ï¼‘ã¤ã®ç›¤é¢ã®ãƒ‡ãƒ¼ã‚¿æƒ…å ±ã‚’å…¨ã¦ã‚‚ã†ä¸€ã¤ã®ç›¤é¢ã®ãƒ‡ãƒ¼ã‚¿æƒ…å ±ã«ä»£å…¥ã€‚ã¾ãŸã€Cubeã®åˆæœŸä½ç½®åŠã³ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚¿ãƒ¼ãƒ³ã®æƒ…å ±ã‚’é»’ã®ã‚¿ãƒ¼ãƒ³ã«å¤‰ãˆã‚‹ã€‚
     void ResetBoardProcess(SpriteState[,,] MainSpriteState, SpriteState[,,] TargetSpriteState)
     {
         for (int x = 0; x < OthelloScript.FIELD_SIZE; x++)
@@ -884,7 +903,7 @@ public class OnlineOthelloScript : MonoBehaviourPun
     }
     #endregion
 
-    #region Œ»İ‚Ì”Õ–Ê‚ğ‘S‚Ä•\¦‚·‚é
+    #region ç¾åœ¨ã®ç›¤é¢ã‚’å…¨ã¦è¡¨ç¤ºã™ã‚‹
     void ShowSpriteBoard()
     {
         for (int x = 0; x < OthelloScript.FIELD_SIZE; x++)
@@ -908,7 +927,6 @@ public class OnlineOthelloScript : MonoBehaviourPun
         {
             if (ObjectRotationBool.FieldPosition[1] == 0)
             {
-                //Debug.Log(ObjectRotationBool.FieldPosition);
                 if (List[0] == 1 && PosX < FIELD_SIZE_MAX)
                 {
                     PosX++;
@@ -1101,7 +1119,6 @@ public class OnlineOthelloScript : MonoBehaviourPun
 
             }
         }
-        //Debug.Log("x,y,z"+Cube_Position_X+","+ Cube_Position_Y+","+ Cube_Position_Z);
         lastMoveTime = Time.time;
     }
 
@@ -1119,14 +1136,12 @@ public class OnlineOthelloScript : MonoBehaviourPun
             {
                 CubeCopy.transform.localPosition = new Vector3(CubeCopy.transform.localPosition.x + 2.0f, CubeCopy.transform.localPosition.y , CubeCopy.transform.localPosition.z);
                 Cube_Position_X = PosX;
-                //CubeCopy.transform.position = Cube.transform.localPosition;
 
             }
             else
             {
                 CubeCopyCliant.transform.localPosition = new Vector3(CubeCopyCliant.transform.localPosition.x + 2.0f, CubeCopyCliant.transform.localPosition.y, CubeCopyCliant.transform.localPosition.z);
                 Cube_Position_X_Cliant = PosX;
-                //CubeCopyCliant.transform.position = CubeCliant.transform.position;
             }
 
         }
@@ -1136,18 +1151,15 @@ public class OnlineOthelloScript : MonoBehaviourPun
             {
                 CubeCopy.transform.localPosition = new Vector3(CubeCopy.transform.localPosition.x - 2.0f, CubeCopy.transform.localPosition.y, CubeCopy.transform.localPosition.z);
                 Cube_Position_X = PosX;
-                //CubeCopy.transform.position = Cube.transform.localPosition;
 
             }
             else
             {
                 CubeCopyCliant.transform.localPosition = new Vector3(CubeCopyCliant.transform.localPosition.x - 2.0f, CubeCopyCliant.transform.localPosition.y, CubeCopyCliant.transform.localPosition.z);
                 Cube_Position_X_Cliant = PosX;
-                //CubeCopyCliant.transform.position = CubeCliant.transform.position;
             }
         }
         CubeMoveAudio.Play();
-        //Debug.Log("PosX" + PosX+ " CubeCopy:"+ Cube.transform.localPosition);
     }
     [PunRPC]
     void PositionY(bool ValueHantei,int PosY, bool PlayerHnatei)
@@ -1159,14 +1171,12 @@ public class OnlineOthelloScript : MonoBehaviourPun
             {
                 CubeCopy.transform.localPosition = new Vector3(CubeCopy.transform.localPosition.x, CubeCopy.transform.localPosition.y + 2.0f, CubeCopy.transform.localPosition.z);
                 Cube_Position_Y = PosY;
-                //CubeCopy.transform.position = Cube.transform.localPosition;
 
             }
             else
             {
                 CubeCopyCliant.transform.localPosition = new Vector3(CubeCopyCliant.transform.localPosition.x, CubeCopyCliant.transform.localPosition.y + 2.0f, CubeCopyCliant.transform.localPosition.z);
                 Cube_Position_Y_Cliant = PosY;
-                //CubeCopyCliant.transform.position = CubeCliant.transform.position;
             }
         }
         else
@@ -1175,14 +1185,12 @@ public class OnlineOthelloScript : MonoBehaviourPun
             {
                 CubeCopy.transform.localPosition = new Vector3(CubeCopy.transform.localPosition.x, CubeCopy.transform.localPosition.y - 2.0f, CubeCopy.transform.localPosition.z);
                 Cube_Position_Y = PosY;
-                //CubeCopy.transform.position = Cube.transform.localPosition;
 
             }
             else
             {
                 CubeCopyCliant.transform.localPosition = new Vector3(CubeCopyCliant.transform.localPosition.x, CubeCopyCliant.transform.localPosition.y - 2.0f, CubeCopyCliant.transform.localPosition.z);
                 Cube_Position_Y_Cliant = PosY;
-                //CubeCopyCliant.transform.position = CubeCliant.transform.position;
             }
         }
         CubeMoveAudio.Play();
@@ -1196,14 +1204,12 @@ public class OnlineOthelloScript : MonoBehaviourPun
             {
                 CubeCopy.transform.localPosition = new Vector3(CubeCopy.transform.localPosition.x, CubeCopy.transform.localPosition.y, CubeCopy.transform.localPosition.z + 2.0f);
                 Cube_Position_Z = PosZ;
-                //CubeCopy.transform.position = Cube.transform.localPosition;
 
             }
             else
             {
                 CubeCopyCliant.transform.localPosition = new Vector3(CubeCopyCliant.transform.localPosition.x, CubeCopyCliant.transform.localPosition.y, CubeCopyCliant.transform.localPosition.z + 2.0f);
                 Cube_Position_Z_Cliant = PosZ;
-                //CubeCopyCliant.transform.position = CubeCliant.transform.position;
             }
             
         }
@@ -1213,14 +1219,12 @@ public class OnlineOthelloScript : MonoBehaviourPun
             {
                 CubeCopy.transform.localPosition = new Vector3(CubeCopy.transform.localPosition.x, CubeCopy.transform.localPosition.y, CubeCopy.transform.localPosition.z - 2.0f);
                 Cube_Position_Z = PosZ;
-                //CubeCopy.transform.position = Cube.transform.localPosition;
 
             }
             else
             {
                 CubeCopyCliant.transform.localPosition = new Vector3(CubeCopyCliant.transform.localPosition.x, CubeCopyCliant.transform.localPosition.y, CubeCopyCliant.transform.localPosition.z - 2.0f);
                 Cube_Position_Z_Cliant = PosZ;
-                //CubeCopyCliant.transform.position = CubeCliant.transform.position;
             }
         }
 
@@ -1339,7 +1343,7 @@ public class OnlineOthelloScript : MonoBehaviourPun
     [PunRPC]
     void SyncFieldStateFieldState(SpriteState[] serializedFieldState)
     {
-        // ƒfƒVƒŠƒAƒ‰ƒCƒY‚µ‚ÄƒtƒB[ƒ‹ƒhó‘Ô‚ğ“K—p
+        // ãƒ‡ã‚·ãƒªã‚¢ãƒ©ã‚¤ã‚ºã—ã¦ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰çŠ¶æ…‹ã‚’é©ç”¨
         FieldState = DeserializeFieldState(serializedFieldState);
         UpdateField();
     }
@@ -1378,10 +1382,10 @@ public class OnlineOthelloScript : MonoBehaviourPun
     }
     void ChangePlayerTurn()
     {
-        // ƒvƒŒƒCƒ„[‚Ìƒ^[ƒ“‚ğØ‚è‘Ö‚¦‚é
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ã‚¿ãƒ¼ãƒ³ã‚’åˆ‡ã‚Šæ›¿ãˆã‚‹
         PlayerTurn = PlayerTurn == SpriteState.Black ? SpriteState.White : SpriteState.Black;
 
-        // RPC‚Å‘SƒNƒ‰ƒCƒAƒ“ƒg‚É“¯Šú
+        // RPCã§å…¨ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã«åŒæœŸ
         photonView.RPC("SyncPlayerTurn", RpcTarget.All, PlayerTurn);
     }
 }
