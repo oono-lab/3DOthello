@@ -7,29 +7,42 @@ using TMPro;
 
 public class CreateRoomManager : MonoBehaviourPunCallbacks
 {
+    #region å¤‰æ•°å®£è¨€ãƒ»UIå‚ç…§
     private bool _shouldCreateRoom;
     public OnlineOthelloScript othelloScript;
     public Image fadeImage;
     public float fadeDuration = 1f;
     public GameObject CreateRoomPanel;
-    //public Material[] materials;
     public AlphaValueChange[] alphaValueChanges;
+
     private string currentUIState = "InitialUI";
     private TextMeshProUGUI roomCreatedMessageText;
     private int OnlineBattleScene = 9;
+
+    // è¨­å®šåŒæœŸãŒå®Œäº†ã—ãŸãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ActorNumberã‚’ä¿æŒ
     private HashSet<int> playersSynced = new HashSet<int>();
+    #endregion
+
+    #region Unityã‚¤ãƒ™ãƒ³ãƒˆ
+    void Awake()
+    {
+        PhotonNetwork.AutomaticallySyncScene = true;
+    }
 
     void Start()
     {
         roomCreatedMessageText = CreateRoomPanel.GetComponentInChildren<TextMeshProUGUI>();
     }
+    #endregion
+
+    #region UIãƒœã‚¿ãƒ³ã‚¤ãƒ™ãƒ³ãƒˆ
     public void OnLeaveRoomButtonClicked()
     {
         PhotonNetwork.LeaveRoom();
     }
+
     public void OnCreateRoomButtonClicked()
-    {   
-        // ‚Ü‚¾Ú‘±‚³‚ê‚Ä‚¢‚È‚¯‚ê‚ÎAÚ‘±‚µ‚Äƒtƒ‰ƒO‚¾‚¯—§‚Ä‚é
+    {
         if (!PhotonNetwork.IsConnectedAndReady)
         {
             _shouldCreateRoom = true;
@@ -38,18 +51,29 @@ public class CreateRoomManager : MonoBehaviourPunCallbacks
             return;
         }
 
-        // Ú‘±Ï‚İ‚È‚ç‘¦ƒ‹[ƒ€ì¬
         CreateRandomRoom();
     }
+    #endregion
 
+    #region ãƒ«ãƒ¼ãƒ ä½œæˆå‡¦ç†
     private void CreateRandomRoom()
-    { 
+    {
+        int maxRooms = 10;
+
+        if (PhotonNetwork.CountOfRooms >= maxRooms)
+        {
+            Debug.Log("ãƒ«ãƒ¼ãƒ æ•°ãŒæº€æ¯ã§ã™ã€‚ä½œæˆã‚’ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã—ã¾ã™ã€‚");
+            roomCreatedMessageText.text = "ãƒ«ãƒ¼ãƒ æ•°ãŒæº€æ¯ã®ãŸã‚ä½œæˆã§ãã¾ã›ã‚“ã§ã—ãŸã€‚æ™‚é–“ã‚’ç½®ã„ã¦ã‹ã‚‰å†åº¦ä½œæˆã—ã¦ãã ã•ã„ã€‚";
+            return;
+        }
+
         RoomOptions roomOptions = new RoomOptions()
         {
             IsVisible = true,
             IsOpen = true,
             MaxPlayers = 2
         };
+
         string roomName = "Room" + Random.Range(1000, 9999);
         PhotonNetwork.CreateRoom(roomName, roomOptions);
         Debug.Log($"Creating room: {roomName}");
@@ -58,7 +82,6 @@ public class CreateRoomManager : MonoBehaviourPunCallbacks
     public override void OnConnectedToMaster()
     {
         Debug.Log("Connected to Master.");
-        
         if (_shouldCreateRoom)
         {
             _shouldCreateRoom = false;
@@ -69,51 +92,45 @@ public class CreateRoomManager : MonoBehaviourPunCallbacks
     public override void OnCreatedRoom()
     {
         Debug.Log("Room created successfully");
-        roomCreatedMessageText.text = $"‚ ‚È‚½‚Í {PhotonNetwork.CurrentRoom.Name} ‚ğì¬‚µ‚Ü‚µ‚½BƒvƒŒƒCƒ„[‚ª—ˆ‚é‚Ü‚Å‚µ‚Î‚ç‚­‚¨‘Ò‚¿‚­‚¾‚³‚¢B";
+        roomCreatedMessageText.text = $"ã‚ãªãŸã¯ {PhotonNetwork.CurrentRoom.Name} ã‚’ä½œæˆã—ã¾ã—ãŸã€‚ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒæ¥ã‚‹ã¾ã§ã—ã°ã‚‰ããŠå¾…ã¡ãã ã•ã„ã€‚";
     }
 
     public override void OnCreateRoomFailed(short returnCode, string message)
     {
         Debug.LogWarning($"Room creation failed: {message}");
     }
-    void Awake()
-    {
-        PhotonNetwork.AutomaticallySyncScene = true;
-    }
+    #endregion
+
+    #region ãƒ«ãƒ¼ãƒ å‚åŠ ã¨åŒæœŸå‡¦ç†
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
-        Debug.Log("V‚µ‚¢ƒvƒŒƒCƒ„[‚ªƒ‹[ƒ€‚ÉQ‰Á‚µ‚Ü‚µ‚½: " + PhotonNetwork.IsMasterClient);
+        Debug.Log("æ–°ã—ã„ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒãƒ«ãƒ¼ãƒ ã«å‚åŠ ã—ã¾ã—ãŸ: " + PhotonNetwork.IsMasterClient);
 
         if (PhotonNetwork.CurrentRoom.PlayerCount == 2 && PhotonNetwork.IsMasterClient)
         {
-           
-            Debug.Log("ƒ‹[ƒ€‚ÌƒvƒŒƒCƒ„[‚ª2l‚É‚È‚è‚Ü‚µ‚½Bİ’è‚ğ“¯Šú‚µ‚Ü‚·...");
-            // ‚Ü‚¸İ’è“¯Šú‚ÌRPC‚ğ‘—M
+            Debug.Log("ãƒ«ãƒ¼ãƒ ã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒ2äººã«ãªã‚Šã¾ã—ãŸã€‚è¨­å®šã‚’åŒæœŸã—ã¾ã™...");
             photonView.RPC("SyncSettingToAll", RpcTarget.Others,
-                PhotonNetwork.LocalPlayer.ActorNumber,  // ‘—MŒ³ ActorNumber ‚ğ“n‚·
+                PhotonNetwork.LocalPlayer.ActorNumber,
                 OthelloScript.FIELD_SIZE,
                 OthelloScript.positional_complement,
                 OthelloScript.isHard,
                 OthelloScript.isCustum
-                );
-
+            );
         }
-
-
     }
+
     [PunRPC]
     void SyncSettingToAll(int senderActorNumber, int FIELD_SIZE, float positional_complement, bool isHard, bool isCustum)
     {
-        // ó‚¯æ‚Á‚½İ’è‚ğ“K—p
+        // è¨­å®šã‚’é©ç”¨
         OthelloScript.FIELD_SIZE = FIELD_SIZE;
         OthelloScript.positional_complement = positional_complement;
         OthelloScript.isHard = isHard;
         OthelloScript.isCustum = isCustum;
 
-        Debug.Log("İ’è‚ğóME“K—p‚µ‚Ü‚µ‚½B‘—MÒ‚ÉŠ®—¹’Ê’m‚ğ•Ô‚µ‚Ü‚·B");
-        
+        Debug.Log("è¨­å®šã‚’å—ä¿¡ãƒ»é©ç”¨ã—ã¾ã—ãŸã€‚é€ä¿¡è€…ã«å®Œäº†é€šçŸ¥ã‚’è¿”ã—ã¾ã™ã€‚");
 
-            Player sender = GetPlayerFromActorNumber(senderActorNumber);
+        Player sender = GetPlayerFromActorNumber(senderActorNumber);
         if (sender != null)
         {
             photonView.RPC("OnSettingSyncComplete", sender);
@@ -123,54 +140,51 @@ public class CreateRoomManager : MonoBehaviourPunCallbacks
     [PunRPC]
     void OnSettingSyncComplete(PhotonMessageInfo info)
     {
-        // İ’è“¯Šú‚ªŠ®—¹‚µ‚½ƒNƒ‰ƒCƒAƒ“ƒg‚Ì ActorNumber ‚ğ’Ç‰Á
         int actorNumber = info.Sender.ActorNumber;
         playersSynced.Add(actorNumber);
 
-        Debug.Log($"İ’è“¯ŠúŠ®—¹’Ê’m‚ğóM: {info.Sender.NickName}");
+        Debug.Log($"è¨­å®šåŒæœŸå®Œäº†é€šçŸ¥ã‚’å—ä¿¡: {info.Sender.NickName}");
 
-        // ‘Sˆõ‚Ì“¯Šú‚ªŠ®—¹‚µ‚½‚çƒV[ƒ“‘JˆÚiƒ}ƒXƒ^[ƒNƒ‰ƒCƒAƒ“ƒg‚Ì‚İ‚ªˆ—j
         if (PhotonNetwork.IsMasterClient && playersSynced.Count == PhotonNetwork.CurrentRoom.PlayerCount - 1)
         {
-            Debug.Log("‘SƒNƒ‰ƒCƒAƒ“ƒg‚ªİ’è“¯ŠúŠ®—¹BƒtƒB[ƒ‹ƒhó‘Ô‚ğ‘—M‚µ‚ÄƒV[ƒ“‚ğƒ[ƒh‚µ‚Ü‚·...");
-            for (int i = 0; i < alphaValueChanges.Length; i++)
+            Debug.Log("å…¨ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆãŒè¨­å®šåŒæœŸå®Œäº†ã€‚ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰çŠ¶æ…‹ã‚’é€ä¿¡ã—ã¦ã‚·ãƒ¼ãƒ³ã‚’ãƒ­ãƒ¼ãƒ‰ã—ã¾ã™...");
+
+            foreach (var alpha in alphaValueChanges)
             {
-                alphaValueChanges[i].OnlineColorMatch();
+                alpha.OnlineColorMatch();
             }
+
             othelloScript.SendFieldStateToParticipantsCustum();
             othelloScript.SendFieldStateToParticipantsFieldState();
+
             currentUIState = GetCurrentUIState();
             PhotonNetwork.LoadLevel(OnlineBattleScene);
-            //photonView.RPC("SyncUIState", RpcTarget.Others, currentUIState);
             photonView.RPC("RPC_SyncLoadLevel", RpcTarget.OthersBuffered);
         }
     }
+    #endregion
+
+    #region UIåŒæœŸå‡¦ç†
     private string GetCurrentUIState()
     {
-        // ‚±‚±‚ÅŒ»İ‚ÌUIó‘Ô‚ğæ“¾‚·‚éˆ—‚ğ‹Lq
-        // —á: Œ»İ‚ÌUIƒ{ƒ^ƒ“‚Ìó‘Ô‚È‚Ç
-        return "InitialUI";  // —á: ‰Šúó‘Ô‚Æ‚µ‚Ä "InitialUI" ‚ğ•Ô‚·
+        return "InitialUI";
     }
 
-    // ƒ}ƒXƒ^[ƒNƒ‰ƒCƒAƒ“ƒg‚©‚çUIó‘Ô‚ğ“¯Šú
     [PunRPC]
     private void SyncUIState(string uiState)
     {
-        Debug.Log("ƒ}ƒXƒ^[ƒNƒ‰ƒCƒAƒ“ƒg‚©‚çUIó‘Ô‚ğóM‚µ‚Ü‚µ‚½: " + uiState);
-
-        // óM‚µ‚½UIó‘Ô‚ÉŠî‚Ã‚¢‚Ä‰æ–Ê‚ğXV
+        Debug.Log("ãƒã‚¹ã‚¿ãƒ¼ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã‹ã‚‰UIçŠ¶æ…‹ã‚’å—ä¿¡ã—ã¾ã—ãŸ: " + uiState);
         UpdateUI(uiState);
     }
 
-    // UI‚ğXV‚·‚éˆ—i—á‚Æ‚µ‚Ästring‚ğg—pj
     private void UpdateUI(string uiState)
     {
-        Debug.Log("UIó‘Ô‚ğXV: " + uiState);
-
-        // ‚±‚±‚ÅUIó‘Ô‚ğXV‚·‚éˆ—‚ğ‹Lq
-        // —á: óM‚µ‚½UIó‘Ô‚É‰‚¶‚Äƒ{ƒ^ƒ“‚Ì•\¦‚âƒAƒNƒVƒ‡ƒ“‚ğ•ÏX
+        Debug.Log("UIçŠ¶æ…‹ã‚’æ›´æ–°: " + uiState);
+        // å¿…è¦ã«å¿œã˜ã¦UIã‚’åˆ¶å¾¡
     }
-    // ActorNumber ‚©‚ç Player ‚ğæ“¾
+    #endregion
+
+    #region ãƒ¦ãƒ¼ãƒ†ã‚£ãƒªãƒ†ã‚£
     Player GetPlayerFromActorNumber(int actorNumber)
     {
         foreach (var player in PhotonNetwork.PlayerList)
@@ -180,11 +194,12 @@ public class CreateRoomManager : MonoBehaviourPunCallbacks
         }
         return null;
     }
+
     [PunRPC]
     void RPC_SyncLoadLevel()
     {
-        Debug.Log("[SLAVE] RPC_SyncLoadLevel ‚ğóM‚µ‚½‚Ì‚ÅA“¯‚¶ƒV[ƒ“‚ğƒ[ƒh‚µ‚Ü‚·B");
+        Debug.Log("[SLAVE] RPC_SyncLoadLevel ã‚’å—ä¿¡ã—ãŸã®ã§ã€åŒã˜ã‚·ãƒ¼ãƒ³ã‚’ãƒ­ãƒ¼ãƒ‰ã—ã¾ã™ã€‚");
         PhotonNetwork.LoadLevel(OnlineBattleScene);
     }
-
+    #endregion
 }
